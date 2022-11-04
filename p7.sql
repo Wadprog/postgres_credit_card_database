@@ -17,7 +17,7 @@ $$
 BEGIN
  RETURN QUERY
 SELECT 
-C.name AS vendor_name,
+C.cname AS customer_name,
 round((C.balance +(10* (C.balance-C.crlimit)/100)),2)AS new_balance
 From customer AS C
 WHERE C.balance > C.crlimit;

@@ -13,14 +13,29 @@ Author : Wadson Vaval
 OWNER : Karla Gomez
 */
 
-DROP FUNCTION IF EXISTS fn_new_transaction(INT , INT , INT);
-CREATE OR REPLACE FUNCTION fn_new_transaction(_vendor_number INT, _account_number INT, _amount INT) 
-RETURNS TABLE(trx_number INT ,cst_name VARCHAR,vendor_name VARCHAR, cst_balance INT, vendor_balance INT , trx_amount INT, trx_account_number INT, trx_vendor_number INT)
+DROP FUNCTION IF EXISTS fn_new_transaction(TEXT , TEXT , INT);
+CREATE OR REPLACE FUNCTION fn_new_transaction(_vendor_number TEXT, _account_number TEXT, _amount INT) 
+RETURNS TABLE(trx_number VARCHAR ,cst_name VARCHAR,vendor_name VARCHAR, cst_balance INT, vendor_balance INT , trx_amount INT, trx_account_number VARCHAR, trx_vendor_number VARCHAR)
  LANGUAGE plpgsql AS
 $$
 BEGIN
 
-INSERT INTO transaction(account_number, vendor_number, amount)VALUES(_account_number, _vendor_number, _amount);
+
+PERFORM * FROM customer WHERE account_number = _account_number;
+IF NOT FOUND THEN 
+RAISE EXCEPTION USING MESSAGE="customer does not exist";
+END IF;
+
+PERFORM * FROM vendor WHERE vendor_number = vendor_number;
+IF NOT FOUND THEN 
+RAISE EXCEPTION USING MESSAGE="vendor does not exist";
+END IF;
+
+INSERT INTO transaction(transaction_number,account_number, vendor_number, amount)
+VALUES(
+	-- AUTO CREATING transaction_number
+	(CONCAT('t',(SUBSTRING((SELECT transaction_number FROM transaction ORDER BY transaction_number DESC LIMIT 1),2,1)::int+1))),
+	_account_number, _vendor_number, _amount);
 
 UPDATE customer AS c SET balance= _amount WHERE c.account_number = _account_number ;
 UPDATE vendor AS v SET balance = _amount WHERE v.vendor_number= _vendor_number;
@@ -28,8 +43,8 @@ UPDATE vendor AS v SET balance = _amount WHERE v.vendor_number= _vendor_number;
 RETURN QUERY
 SELECT 
 t.transaction_number AS trx_number,
-c.name AS cst_name,
-v.name AS vendor_name, 
+c.cname AS cst_name,
+v.cname AS vendor_name, 
 c.balance AS cst_balance, 
 v.balance AS vendor_balance,
 t.amount AS trx_amount,
@@ -46,4 +61,4 @@ AND t.account_number= _account_number;
 END;
 $$;
 
-SELECT * FROM fn_new_transaction(3,2,2000);
+SELECT * FROM fn_new_transaction('v3','c2',2000);

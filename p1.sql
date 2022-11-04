@@ -13,13 +13,13 @@ $$
 BEGIN
  RETURN QUERY
  SELECT 
-  V.name As vendor_name,
+  V.cname As vendor_name,
   TR.date,
   TR.amount 
  FROM customer AS C
- INNER JOIN transaction AS TR ON TR.account_number = C.account_number
- INNER JOIN vendor AS V ON TR.vendor_number = V.vendor_number
- WHERE C.name =_cst_name;
+ INNER JOIN transaction AS TR  USING(account_number) 
+ INNER JOIN vendor AS V USING(vendor_number)
+ WHERE C.cname ILIKE _cst_name;
 END
 $$;
 

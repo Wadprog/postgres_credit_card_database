@@ -9,14 +9,14 @@ OWNER : Karla Gomez
 
 DROP FUNCTION IF EXISTS fn_vendors_total_transaction();
 CREATE OR REPLACE FUNCTION fn_vendors_total_transaction() 
-RETURNS TABLE(vendor_number INT, vendor_name VARCHAR, new_balances bigint)
+RETURNS TABLE(vendor_number VARCHAR, vendor_name VARCHAR, new_balances bigint)
  LANGUAGE plpgsql AS
 $$
 BEGIN
  RETURN QUERY
 SELECT 
 V.vendor_number, 
-V.name AS vendor_name,
+V.cname AS vendor_name,
 balance+(
 SELECT COUNT(*)
 From transaction 

@@ -16,7 +16,7 @@ $$
 BEGIN
  RETURN QUERY
 SELECT 
-V.name AS vendor_name,
+V.cname AS vendor_name,
 round((2.5* V.balance/100),2)AS fee,
 round((V.balance-(2.5* V.balance/100)),2)AS new_balance
 From vendor AS V;
